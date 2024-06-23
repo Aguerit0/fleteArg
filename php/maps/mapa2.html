@@ -1,0 +1,197 @@
+<!-- 
+  PROVISORIO
+  MAPA - BUSCADOR - BOTON UBI 
+
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      #map {
+        height: 50%;
+        width: auto;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #searchMap {
+        width: 40%;
+        height: 40px;
+        border-color: black;
+        font-size: 20px;
+      }
+      #buttonMyUbi {
+        width: 15%;
+        height: auto;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="text" id="searchMap" placeholder="Ingresa una Ubicación" />
+    <div id="map"></div>
+    <div class="row">
+      <div class="col-6">
+        <h3>Datos de SALIDA</h3>
+        <label for="latitude"> Latitud: </label>
+        <input type="text" id="latitudSalida" style="color: green" value="0" />
+        <label for="longitude"> Longitud: </label>
+        <input type="text" id="longitudSalida" style="color: green" value="0" />
+      </div>
+      <div class="col-6">
+        <h3>Datos de LLEGADA</h3>
+        <label for="latitude"> Latitud: </label>
+        <input
+          type="text"
+          id="latitudLlegada"
+          style="color: red"
+          value="-28.46957"
+        />
+        <label for="longitude"> Longitud: </label>
+        <input
+          type="text"
+          id="longitudLlegada"
+          style="color: red"
+          value="-65.78524"
+        />
+      </div>
+    </div>
+
+    <script
+      async
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap"
+    ></script>
+    <script>
+      // Note: This example requires that you consent to location sharing when
+      // prompted by your browser. If you see the error "The Geolocation service
+      // failed.", it means you probably did not give permission for the browser to
+      // locate you.
+      let map, infoWindow, marker;
+      const cordsInit = { lat: -28.46957, lng: -65.78524 };
+      const searchMap = document.getElementById("searchMap");
+      const imageFlagInit =
+        "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
+      const imageFlagFinal = "icons8-bandera-2-50.png";
+
+      //Función iniciar mapa
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          //lat && lng defecto en catamarca
+          center: cordsInit,
+          zoom: 14,
+        });
+        //MARCADOR DE LLEGADA
+        markerLlegada = new google.maps.Marker({
+          position: cordsInit,
+          map: map,
+          draggable: true,
+          title: "LLEGADA",
+          icon: imageFlagInit,
+          visible: true,
+        });
+
+        //CAPTURO Y MUESTRO LATITUD Y LONGITUD MARCADOR DE LLEGADA
+        google.maps.event.addListener(markerLlegada, "dragend", function (evt) {
+          $("#latitudLlegada").val(evt.latLng.lat().toFixed(6));
+          $("#longitudLlegada").val(evt.latLng.lng().toFixed(6));
+
+          map.panTo(evt.latLng);
+        });
+
+        infoWindow = new google.maps.InfoWindow();
+
+        //SEGUIR ACA!!
+
+        const locationButton = document.createElement("button");
+
+        locationButton.textContent = "Agregar mi ubicación";
+        locationButton.classList.add("custom-map-control-button");
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(
+          locationButton
+        );
+        locationButton.addEventListener("click", () => {
+          // Try HTML5 geolocation.
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const pos = {
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude,
+                };
+
+                infoWindow.setPosition(pos);
+                //MARCADOR DE SALIDA: POSC ACTUAL
+                markerSalida = new google.maps.Marker({
+                  position: pos,
+                  map: map,
+                  zoom: 10,
+                  center: pos,
+                  draggable: true,
+                  title: "SALIDA",
+                  visible: true,
+                });
+
+                map.setCenter(pos);
+              },
+              () => {
+                handleLocationError(true, infoWindow, map.getCenter());
+              }
+            );
+            //CAPTURO Y MUESTRO LATITUD Y LONGITUD MARCADOR DE SALIDA
+            google.maps.event.addListener(
+              markerSalida,
+              "dragend",
+              function (evtt) {
+                $("#latitudSalida").val(evtt.latLngg.lat().toFixed(6));
+                $("#longitudSalida").val(evtt.latLngg.lng().toFixed(6));
+
+                map.panTo(evtt.latLngg);
+              }
+            );
+          } else {
+            // Browser doesn't support Geolocation
+            handleLocationError(false, infoWindow, map.getCenter());
+          }
+        });
+
+        //Llamo función autocompletado
+        initAutocomplete();
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(
+          browserHasGeolocation
+            ? "Error: The Geolocation service failed."
+            : "Error: Your browser doesn't support geolocation."
+        );
+        infoWindow.open(map);
+      }
+
+      function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(searchMap);
+        autocomplete.addListener("place_changed", function () {
+          const place = autocomplete.getPlace();
+          map.setCenter(place.geometry.location);
+          marker.setPosition(place.geometry.location);
+        });
+      }
+
+      window.initMap = initMap;
+    </script>
+  </body>
+</html>

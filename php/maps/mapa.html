@@ -1,0 +1,67 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #map {
+        height: 100%;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #searchMap {
+        width: 100%;
+        height: 40px;
+        border-color: black;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="text" id="searchMap" placeholder="Ingresa una Ubicación" />
+    <div id="map"></div>
+
+    <script
+      async
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap"
+    ></script>
+
+    <script>
+      const cordsInit = { lat: -28.46957, lng: -65.78524 };
+      const mapDiv = document.getElementById("map");
+      const inputSearchMap = document.getElementById("searchMap");
+      let map;
+      let marker;
+      let autocomplete;
+
+      function initMap() {
+        map = new google.maps.Map(mapDiv, {
+          center: cordsInit,
+          zoom: 9,
+        });
+        marker = new google.maps.Marker({
+          position: cordsInit,
+          map: map,
+        });
+        initAutocomplete();
+      }
+      function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(inputSearchMap);
+        autocomplete.addListener("place_changed", function(){
+            const place = autocomplete.getPlace();
+            map.setCenter(place.geometry.location);
+            marker.setPosition(place.geometry.location);
+        })
+      }
+
+    </script>
+  </body>
+</html>

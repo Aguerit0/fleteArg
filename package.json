@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "leaflet-routing-machine": "^3.2.12",
+    "sweetalert": "^2.1.2"
+  }
+}

@@ -1,0 +1,197 @@
+<?php
+
+include 'conexion.php';
+session_start();
+// PREGUNTA SI HAY UN USUARIO REGISTRADO
+if (!isset($_SESSION['usuario'])) {
+    header('Location: inicioSesion.php');
+}
+
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>FleteAR</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+    <br>
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+
+    <!-- For Google Maps Api -->
+    <link href="Content/bootstrap.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <script src="https://kit.fontawesome.com/ab2155e76b.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+
+    <link href="assets/css/style.css" rel="stylesheet">
+
+    <style>
+        /*styling.css*/
+        /*add font family, background image*/
+
+        .fa-map-marker-alt,
+        .fa-dot-circle {
+            color: #5bc0de;
+        }
+
+        /*Jumbotron*/
+        .jumbotron {
+            background-color: transparent;
+            margin: 0;
+            padding: 10px;
+            color: white;
+
+        }
+
+        .jumbotron h1 {
+            color: white;
+            letter-spacing: 2.5px;
+            font-size: 3.5em;
+        }
+
+        .jumbotron h1,
+        .jumbotron p {
+            color: white;
+
+            text-align: center;
+        }
+
+        /*map*/
+        #googleMap {
+            width: 80%;
+            height: 600px;
+            margin: 10px auto;
+        }
+
+        /*output box*/
+        #output {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px auto;
+            color: white;
+
+        }
+
+        #mode {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <?php include("./template/header.php") ?>
+
+    <!-- ======= Sidebar ======= -->
+    <?php if ($_SESSION['rol'] == 2) {
+        include("./template/adminNav.php");
+    } else if ($_SESSION['rol'] == 1) {
+        include("./template/fleteroNav.php");
+    } else if ($_SESSION['rol'] == 0) {
+        include("./template/clienteNav.php");
+    }
+    ?>
+
+    <main id="main" class="main">
+
+
+
+        <section class="section dashboard">
+
+
+            <div class="jumbotron">
+                <div class="container-fluid">
+                    <h1 class="text-start">Contratar Servicio de Fletero</h1>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="from" class="col-xs-2 control-label" style="display: -webkit-inline-box;"><i class="far fa-dot-circle"></i> <p style="color: white; margin-left: 4px;"> Ingresa Ubicación de Salida</p></label>
+                            <div class="col-xs-4">
+                                <input type="text" id="from" placeholder="salida" class="form-control">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="form-group">
+
+                            <label for="to" class="col-xs-2 control-label" style="display: -webkit-inline-box;"><i class="fas fa-map-marker-alt"></i> <p style="color: white; margin-left: 4px;"> Ingresa Ubicación de Llegada</p></label><br>
+                            <div class="col-xs-4">
+                                <input type="text" id="to" placeholder="llegada" class="form-control">
+                            </div>
+
+                        </div>
+
+                    </form>
+<br>
+                    <div class="col-xs-offset-2 col-xs-10">
+                        <button class="btn btn-info btn-lg " onclick="calcRoute();"><i class="fas fa-map-signs"></i></button>
+                    </div>
+                </div>
+                <div class="container-fluid">
+                    <div id="googleMap">
+
+                    </div>
+                    <form action="">
+                        <div id="output">
+                        <h2 class="text-center text-title">Datos del Fletero</h2>
+                        
+                    </form>
+
+                    <!-- form output -->                    
+                        
+
+                    </div>
+                </div>
+
+            </div>
+
+
+        </section>
+    </main><!-- End #main -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="Scripts/jquery-3.1.1.min.js"></script>
+    <script src="main.js"></script>
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.min.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
